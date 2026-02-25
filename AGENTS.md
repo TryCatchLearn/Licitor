@@ -27,6 +27,9 @@ This file defines working conventions for AI agents and engineers contributing t
 - Prefer TypeScript and functional React components.
 - Keep app routes and layout logic under `src/app`.
 - Reuse `cn(...)` from `src/lib/utils.ts` for class merging.
+- Prefer shadcn UI components for all common UI primitives (e.g., button, card, badge, input, dialog) to keep the app consistent.
+- If an appropriate shadcn component exists, use it instead of creating a custom component with ad-hoc Tailwind classes.
+- If a needed shadcn component is not present in `src/components/ui`, add it with `npx shadcn@latest add <component>` before building a custom alternative.
 - Keep styling in Tailwind utility classes; use global CSS only for shared tokens/base layers.
 - Run `npm run lint` before finishing changes.
 - If code formatting changes are needed, run `npm run format`.

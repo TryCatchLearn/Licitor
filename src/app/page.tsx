@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 const featuredLots = [
   {
     title: "1967 Mustang Fastback",
@@ -24,9 +28,12 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,color-mix(in_oklab,var(--primary)_25%,transparent)_0%,transparent_45%)]" />
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-16 md:py-24">
         <div className="space-y-6">
-          <p className="inline-flex rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+          <Badge
+            variant="outline"
+            className="border-primary/40 bg-primary/10 px-4 py-1 uppercase tracking-[0.18em] text-primary"
+          >
             Premium live auctions
-          </p>
+          </Badge>
           <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground md:text-6xl">
             Win rare finds at the right moment.
           </h1>
@@ -35,32 +42,23 @@ export default function Home() {
             fast-moving auctions.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link
-              href="/listings"
-              className="rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Browse Listings
-            </Link>
-            <button
-              type="button"
-              className="rounded-md border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
-            >
+            <Button asChild size="lg">
+              <Link href="/listings">Browse Listings</Link>
+            </Button>
+            <Button variant="outline" size="lg" type="button">
               Become a Seller
-            </button>
+            </Button>
           </div>
         </div>
 
         <section className="grid gap-4 md:grid-cols-3">
           {featuredLots.map((lot) => (
-            <article
-              key={lot.title}
-              className="rounded-xl border border-border bg-card p-5 shadow-sm"
-            >
-              <p className="text-sm text-muted-foreground">Featured lot</p>
-              <h2 className="mt-2 text-lg font-semibold text-foreground">
-                {lot.title}
-              </h2>
-              <div className="mt-6 flex items-end justify-between">
+            <Card key={lot.title} className="gap-0 py-5">
+              <CardHeader className="gap-2 px-5">
+                <p className="text-sm text-muted-foreground">Featured lot</p>
+                <CardTitle className="text-lg">{lot.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="mt-6 flex items-end justify-between px-5">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
                     Current bid
@@ -77,8 +75,8 @@ export default function Home() {
                     {lot.endsIn}
                   </p>
                 </div>
-              </div>
-            </article>
+              </CardContent>
+            </Card>
           ))}
         </section>
       </section>
