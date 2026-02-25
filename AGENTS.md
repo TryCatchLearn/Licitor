@@ -21,11 +21,15 @@ This file defines working conventions for AI agents and engineers contributing t
 - App entry: `src/app/layout.tsx`, `src/app/page.tsx`
 - Global styles and theme tokens: `src/app/globals.css`
 - Shared utility: `src/lib/utils.ts` (`cn` helper)
+- Server actions (mutations): `src/server/actions`
+- Server queries (reads/fetching): `src/server/queries`
 - Static assets: `public/`
 
 ## Contribution Guidelines
 - Prefer TypeScript and functional React components.
 - Keep app routes and layout logic under `src/app`.
+- Place mutating server actions under `src/server/actions`.
+- Place fetching/query logic under `src/server/queries`.
 - Reuse `cn(...)` from `src/lib/utils.ts` for class merging.
 - Prefer shadcn UI components for all common UI primitives (e.g., button, card, badge, input, dialog) to keep the app consistent.
 - If an appropriate shadcn component exists, use it instead of creating a custom component with ad-hoc Tailwind classes.

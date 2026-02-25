@@ -3,35 +3,11 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getListings } from "@/server/queries/listings";
 
-const exampleListings = [
-  {
-    id: "LST-001",
-    title: "Mid-Century Lounge Chair",
-    content:
-      "Walnut frame with original leather upholstery in very good condition.",
-    createdAt: "2026-02-15T10:30:00.000Z",
-    image: "https://picsum.photos/id/1062/900/600",
-  },
-  {
-    id: "LST-002",
-    title: "Vintage Camera Set",
-    content:
-      "35mm analog camera with two prime lenses, case, and original manuals.",
-    createdAt: "2026-02-18T14:45:00.000Z",
-    image: "https://picsum.photos/id/250/900/600",
-  },
-  {
-    id: "LST-003",
-    title: "Abstract Canvas Painting",
-    content:
-      "Signed mixed-media artwork featuring bold geometric forms and color.",
-    createdAt: "2026-02-22T09:15:00.000Z",
-    image: "https://picsum.photos/id/1025/900/600",
-  },
-] as const;
+export default async function ListingsPage() {
+  const listingRows = await getListings();
 
-export default function ListingsPage() {
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
       <div className="space-y-3">
@@ -45,7 +21,7 @@ export default function ListingsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {exampleListings.map((listing, index) => (
+        {listingRows.map((listing, index) => (
           <Card key={listing.id} className="gap-0 overflow-hidden py-0">
             <div className="relative aspect-[3/2]">
               <Image
@@ -68,7 +44,7 @@ export default function ListingsPage() {
               <p className="text-sm text-muted-foreground">{listing.content}</p>
               <p className="text-xs text-muted-foreground">
                 Created{" "}
-                {new Date(listing.createdAt).toLocaleDateString("en-US", {
+                {listing.createdAt.toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
