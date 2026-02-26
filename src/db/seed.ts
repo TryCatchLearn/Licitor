@@ -1,7 +1,13 @@
-import { sql } from "drizzle-orm";
-
+import { auth } from "@/lib/auth";
 import { db } from "./client";
-import { listings } from "./schema";
+import {
+  account,
+  listings,
+  profiles,
+  session,
+  user,
+  verification,
+} from "./schema";
 
 const seedListings = [
   {
@@ -30,21 +36,51 @@ const seedListings = [
   },
 ];
 
-const seed = async () => {
-  await db.run(sql`
-    CREATE TABLE IF NOT EXISTS listings (
-      id TEXT PRIMARY KEY NOT NULL,
-      title TEXT NOT NULL,
-      content TEXT NOT NULL,
-      image TEXT NOT NULL,
-      created_at INTEGER NOT NULL
-    )
-  `);
+const seedUsers = [
+  {
+    name: "Bob Bobbity",
+    email: "bob@test.com",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+  },
+  {
+    name: "Alice Testford",
+    email: "alice@test.com",
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
+  {
+    name: "Charlie Example",
+    email: "charlie@test.com",
+    image: "https://randomuser.me/api/portraits/men/51.jpg",
+  },
+];
 
+const sharedPassword = "Pa$$w0rd";
+
+const seed = async () => {
+  await db.delete(session);
+  await db.delete(account);
+  await db.delete(verification);
+  await db.delete(profiles);
+  await db.delete(user);
   await db.delete(listings);
+
   await db.insert(listings).values(seedListings);
 
-  console.log(`Seeded ${seedListings.length} listings into SQLite database.`);
+  for (const seedUser of seedUsers) {
+    await auth.api.signUpEmail({
+      body: {
+        name: seedUser.name,
+        email: seedUser.email,
+        password: sharedPassword,
+        image: seedUser.image,
+      },
+    });
+  }
+
+  console.log(
+    `Seeded ${seedListings.length} listings and ${seedUsers.length} auth users into SQLite database.`,
+  );
+  console.log(`Seeded user password: ${sharedPassword}`);
 };
 
 seed().catch((error: unknown) => {
