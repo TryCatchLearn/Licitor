@@ -209,6 +209,7 @@ Approval note: Approved on 2026-02-27.
 - Create placeholder pages for each new destination route introduced by the navbar changes.
 
 ### Listings Page (`/listings`)
+- Approval note: Phase 1C approved on 2026-03-01.
 - Render a card grid showing all public listings.
 - Each card contains:
 - Main image

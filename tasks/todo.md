@@ -77,6 +77,7 @@ Acceptance Criteria:
 - [x] Placeholder pages render successfully.
 
 ### 1C: Listings Page
+Approval note: Approved on 2026-03-01.
 Goal: Deliver the public browse grid for seeded listings using the new listing card presentation.
 
 Tasks:
@@ -86,9 +87,9 @@ Tasks:
 - Add an empty state for zero results.
 
 Acceptance Criteria:
-- [ ] `/listings` shows seeded non-draft listings as cards.
-- [ ] Draft listings do not appear publicly.
-- [ ] Empty state appears when the dataset is empty.
+- [x] `/listings` shows seeded non-draft listings as cards.
+- [x] Draft listings do not appear publicly.
+- [x] Empty state appears when the dataset is empty.
 
 ### 1D: My Listings Page
 Goal: Deliver a current-user listings view with tab-based status filtering.

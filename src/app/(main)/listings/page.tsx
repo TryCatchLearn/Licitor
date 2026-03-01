@@ -1,65 +1,68 @@
-import Image from "next/image";
+import Link from "next/link";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { getListings } from "@/server/queries/listings";
+import { ListingCard } from "@/components/listings/listing-card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getPublicListings } from "@/server/queries/listings";
 
 export default async function ListingsPage() {
-  const listingRows = await getListings();
+  const listingRows = await getPublicListings();
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
       <div className="space-y-3">
+        <p className="text-sm uppercase tracking-[0.22em] text-primary">
+          Public marketplace
+        </p>
         <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
-          Listings
+          Browse live and upcoming auctions
         </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Placeholder content for upcoming auction inventory, filtering, and
-          category views.
+          Explore the seeded marketplace inventory, from active bidding wars to
+          scheduled launches waiting for their opening bid.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {listingRows.map((listing, index) => (
-          <Card key={listing.id} className="gap-0 overflow-hidden py-0">
-            <div className="relative aspect-[3/2]">
-              <Image
-                src={
-                  listing.images[0]?.url ??
-                  "https://picsum.photos/id/1/1200/900"
-                }
-                alt={listing.title}
-                fill
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover"
-              />
+      {listingRows.length === 0 ? (
+        <Card className="border-dashed border-border/70 bg-card/70 py-0">
+          <CardHeader className="gap-3 px-6 py-6">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">
+              No public listings
+            </p>
+            <CardTitle className="text-2xl">
+              The marketplace is empty right now.
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 px-6 pb-6">
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Draft listings stay private, so this state appears when nothing is
+              active, scheduled, or already ended in the public dataset.
+            </p>
+            <div>
+              <Button asChild variant="outline">
+                <Link href="/">Return home</Link>
+              </Button>
             </div>
-            <CardContent className="space-y-3 p-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {listing.id}
-              </p>
-              <h2 className="text-xl font-semibold text-foreground">
-                {listing.title}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {listing.description}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Seller {listing.seller.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Created{" "}
-                {listing.createdAt.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {listingRows.map((listing, index) => (
+            <ListingCard
+              key={listing.id}
+              bidCount={listing.bidCount}
+              currentBid={listing.currentBid}
+              endAt={listing.endAt}
+              imageUrl={listing.images[0]?.url ?? null}
+              priority={index < 3}
+              sellerName={listing.seller.name}
+              startAt={listing.startAt}
+              status={listing.status}
+              title={listing.title}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
