@@ -1,16 +1,20 @@
-import { ShoppingBag } from "lucide-react";
-
-import { PlaceholderPage } from "@/components/shared/placeholder-page";
+import { CreateListingWorkspace } from "@/components/listings/create-listing-workspace";
 
 export default function CreateListingPage() {
   return (
-    <PlaceholderPage
-      title="Sell My Item"
-      description="The guided listing creation flow lands here in Phase 1E. This placeholder keeps seller navigation stable while the upload and draft workflow is built."
-      eyebrow="Seller tools"
-      icon={ShoppingBag}
-      primaryHref="/my-listings"
-      primaryLabel="View My Listings"
-    />
+    <section className="mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden px-6 py-4 md:py-5">
+      <div className="space-y-2">
+        <p className="text-sm uppercase tracking-[0.22em] text-primary">
+          Seller studio
+        </p>
+        <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
+          Create a new listing
+        </h1>
+      </div>
+
+      <div className="flex min-h-0 flex-1 py-3 md:py-4">
+        <CreateListingWorkspace />
+      </div>
+    </section>
   );
 }

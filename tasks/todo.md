@@ -107,16 +107,16 @@ Acceptance Criteria:
 Goal: Deliver the non-scrolling two-panel create-listing page with drag/drop and local preview states.
 
 Tasks:
-- Build the centered two-panel layout beneath the page header.
-- Implement State 1 drop zone with dragover highlight and hidden file input.
-- Implement State 2 local image preview with `Upload` and `Cancel`.
-- Build the right-side static three-step explainer.
+- [x] Build the centered two-panel layout beneath the page header.
+- [x] Implement State 1 drop zone with dragover highlight and hidden file input.
+- [x] Implement State 2 local image preview with `Upload` and `Cancel`.
+- [x] Build the right-side static three-step explainer.
 
 Acceptance Criteria:
-- [ ] Selecting or dropping an image shows a local preview.
-- [ ] Cancel returns the UI to the empty drop zone.
-- [ ] No upload occurs yet.
-- [ ] The page shows no visible overflow scrollbars.
+- [x] Selecting or dropping an image shows a local preview.
+- [x] Cancel returns the UI to the empty drop zone.
+- [x] No upload occurs yet.
+- [x] The page shows no visible overflow scrollbars.
 
 ### 1F: Create Listing Page - Cloudinary Upload
 Goal: Deliver signed Cloudinary upload, progress feedback, draft creation from placeholder JSON, and redirect to details.
