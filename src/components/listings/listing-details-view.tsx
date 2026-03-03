@@ -30,7 +30,7 @@ type ListingDetailsViewProps = {
   bidCount: number;
   category: Parameters<typeof formatListingCategory>[0];
   condition: Parameters<typeof formatListingCondition>[0];
-  currentBid: number;
+  currentBid: number | null;
   description: string;
   endAt: Date | null;
   id: string;
@@ -44,7 +44,7 @@ type ListingDetailsViewProps = {
   reservePrice: number | null;
   sellerName: string;
   startAt: Date | null;
-  startingBid: number;
+  startingBid: number | null;
   status: Parameters<typeof getListingStatusTone>[0];
   title: string;
 };
@@ -131,7 +131,7 @@ export function ListingDetailsView({
             Current price
           </p>
           <p className="mt-2 text-xl font-semibold text-primary">
-            {formatListingCurrency(currentBid)}
+            {formatListingCurrency(currentBid ?? 0)}
           </p>
         </div>
         <div className="rounded-2xl border border-border/70 bg-background/50 px-4 py-3">
@@ -452,6 +452,7 @@ export function ListingDetailsView({
                   <div className="flex items-start gap-2 rounded-2xl border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
                     <StarOff className="mt-0.5 size-4 shrink-0" />
                     Uploading and deleting images is only available in draft.
+                    Main image can be changed in draft, active, or scheduled.
                   </div>
                 ) : null}
 

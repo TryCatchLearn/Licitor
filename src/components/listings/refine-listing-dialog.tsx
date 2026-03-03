@@ -138,7 +138,7 @@ export function RefineListingDialog({
               <Input
                 id="startingBid"
                 inputMode="decimal"
-                placeholder="0.00"
+                placeholder="Optional (defaults to 0.00)"
                 {...form.register("startingBid")}
               />
               {form.formState.errors.startingBid ? (

@@ -49,7 +49,8 @@ export const useListingDetailsView = ({
   }, []);
 
   const canSetMainImage =
-    isOwner && (status === "Draft" || status === "Active");
+    isOwner &&
+    (status === "Draft" || status === "Active" || status === "Scheduled");
   const canManageGalleryImages = isOwner && status === "Draft";
   const maxImagesReached = hasReachedListingImageLimit(state.images.length);
   const isMutatingImage =

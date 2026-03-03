@@ -11,7 +11,7 @@ import type { ListingStatus } from "@/lib/db/schema";
 type MyListingRecord = {
   id: string;
   bidCount: number;
-  currentBid: number;
+  currentBid: number | null;
   endAt: string | null;
   imageUrl: string | null;
   sellerName: string;

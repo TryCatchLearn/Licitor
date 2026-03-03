@@ -35,7 +35,7 @@ type ListingSellerControlsProps = {
   id: string;
   location: string | null;
   startAt: Date | null;
-  startingBid: number;
+  startingBid: number | null;
   reservePrice: number | null;
   status: ListingStatus;
   title: string;
@@ -180,10 +180,11 @@ export function ListingSellerControls({
 
   const isDraft = status === "Draft";
   const isActive = status === "Active";
+  const isScheduled = status === "Scheduled";
   const canRefine = isDraft;
   const canPublish = isDraft;
   const canDelete = isDraft;
-  const canReturnToDraft = isActive;
+  const canReturnToDraft = isActive || isScheduled;
   const editingLocked = bidCount > 0 || status === "Ended";
   const publishLabel =
     startAt && startAt.getTime() > Date.now()
@@ -220,8 +221,8 @@ export function ListingSellerControls({
           {canReturnToDraft ? (
             <ListingActionAlertDialog
               actionLabel="Move to draft"
-              cancelLabel="Keep active"
-              description="This removes the active listing from public bidding until you publish it again. Listings lock permanently after the first bid."
+              cancelLabel="Keep listed"
+              description="This removes the listing from public bidding until you publish it again. Listings lock permanently after the first bid."
               disabled={isPending}
               onAction={returnToDraft}
               title="Return listing to draft?"

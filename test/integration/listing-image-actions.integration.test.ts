@@ -224,7 +224,7 @@ describe("listing image server actions integration", () => {
       ).rejects.toThrow("Listing image not found.");
     });
 
-    it("rejects non-owner and non-draft listings", async () => {
+    it("rejects non-owner and ended listings", async () => {
       const listing = await createListingFixture({ status: "Draft" });
       setCurrentUser("usr_non_owner");
 
@@ -238,7 +238,7 @@ describe("listing image server actions integration", () => {
       setCurrentUser(listing.sellerId);
       await db
         .update(listings)
-        .set({ status: "Active" })
+        .set({ status: "Ended" })
         .where(eq(listings.id, listing.id))
         .run();
 
@@ -248,8 +248,37 @@ describe("listing image server actions integration", () => {
           listingId: listing.id,
         }),
       ).rejects.toThrow(
-        "Images can only be managed while listing is in draft.",
+        "Main image can only be changed while listing is in draft, active, or scheduled.",
       );
+    });
+
+    it("allows setting main image while listing is Active or Scheduled", async () => {
+      for (const status of ["Active", "Scheduled"] as const) {
+        const listing = await createListingFixture({ status });
+        setCurrentUser(listing.sellerId);
+
+        const imageId = `${listing.id}-IMG-2`;
+        await db.insert(listingImages).values({
+          id: imageId,
+          listingId: listing.id,
+          url: "https://example.com/secondary-status.jpg",
+          publicId: null,
+          isMain: false,
+          createdAt: new Date("2026-03-01T10:00:00.000Z"),
+        });
+
+        await setMainListingImageAction({
+          imageId,
+          listingId: listing.id,
+        });
+
+        const rows = await db.query.listingImages.findMany({
+          where: eq(listingImages.listingId, listing.id),
+        });
+
+        expect(rows.filter((row) => row.isMain)).toHaveLength(1);
+        expect(rows.find((row) => row.id === imageId)?.isMain).toBe(true);
+      }
     });
   });
 });

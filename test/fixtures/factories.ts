@@ -63,7 +63,7 @@ export const createListingFixture = async (
     condition: overrides?.condition ?? "Good",
     reservePrice: overrides?.reservePrice ?? null,
     startingBid: overrides?.startingBid ?? 1_000,
-    currentBid: overrides?.currentBid ?? 1_000,
+    currentBid: overrides?.currentBid ?? overrides?.startingBid ?? 1_000,
     bidCount: overrides?.bidCount ?? 0,
     startAt: overrides?.startAt ?? null,
     endAt: overrides?.endAt ?? null,

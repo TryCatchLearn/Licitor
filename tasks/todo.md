@@ -49,7 +49,7 @@ Status: Accepted
   - [x] Update this `tasks/todo.md` with ordered implementation status
 
 ## Phase 1 - Listing Creation and Management
-Status: In Progress
+Status: Accepted
 ### 1A: Schema, Seed Data & Route Transitions
 Goal: Deliver the expanded listing schema, image relation, seeded demo inventory, and visible app-wide crossfade route transitions.
 
@@ -160,10 +160,10 @@ Tasks:
 - Plan publish to choose immediate `Active` vs future `Scheduled`.
 
 Acceptance Criteria:
-- [ ] Owners can refine, save draft, publish, return active listings to draft, and delete where allowed.
-- [ ] Non-owners only see the placeholder bid panel.
-- [ ] Listings with bids cannot be edited.
-- [ ] Draft listings remain hidden from public browse.
+- [x] Owners can refine, save draft, publish, return active/scheduled listings to draft, and delete where allowed.
+- [x] Non-owners only see the placeholder bid panel.
+- [x] Listings with bids cannot be edited.
+- [x] Draft listings remain hidden from public browse.
 
 ## Phase 2 - Browse and Search Listings
 Status: Not Started

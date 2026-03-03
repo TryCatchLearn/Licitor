@@ -83,22 +83,6 @@ const optionalDateTimeField = z
     return value;
   });
 
-const priceField = (label: string) =>
-  z.preprocess(
-    (value) => {
-      if (typeof value === "number") {
-        return value;
-      }
-
-      if (typeof value !== "string") {
-        return value;
-      }
-
-      return parseMoneyToCents(value, label);
-    },
-    z.number().int().min(0, `${label} must be zero or greater.`),
-  );
-
 const optionalPriceField = (label: string) =>
   z.preprocess((value) => {
     if (value === null || value === undefined || value === "") {
@@ -121,6 +105,37 @@ const optionalPriceField = (label: string) =>
 
     return parseMoneyToCents(normalized, label);
   }, z.number().int().min(0, `${label} must be zero or greater.`).nullable());
+
+const optionalStartingBidField = z
+  .preprocess((value) => {
+    if (value === undefined || value === null) {
+      return null;
+    }
+
+    if (typeof value === "string") {
+      const normalized = value.trim();
+
+      if (!normalized) {
+        return null;
+      }
+
+      return parseMoneyToCents(normalized, "Starting bid");
+    }
+
+    if (typeof value === "number") {
+      return value;
+    }
+
+    return value;
+  }, z
+    .number()
+    .int()
+    .min(0, "Starting bid must be zero or greater.")
+    .nullable()
+    .optional())
+  .transform((value) => {
+    return value ?? null;
+  });
 
 export const updateListingDraftSchema = z
   .object({
@@ -147,10 +162,18 @@ export const updateListingDraftSchema = z
     location: optionalTextField,
     reservePrice: optionalPriceField("Reserve price"),
     startAt: optionalDateTimeField,
-    startingBid: priceField("Starting bid"),
+    startingBid: optionalStartingBidField.optional(),
     title: z.string().trim().min(8, "Title must be at least 8 characters."),
   })
   .superRefine((value, context) => {
+    if (value.startAt && value.startAt.getTime() <= Date.now()) {
+      context.addIssue({
+        code: "custom",
+        message: "Start time must be in the future.",
+        path: ["startAt"],
+      });
+    }
+
     if (value.startAt && value.endAt <= value.startAt) {
       context.addIssue({
         code: "custom",
@@ -159,7 +182,12 @@ export const updateListingDraftSchema = z
       });
     }
 
-    if (value.reservePrice !== null && value.reservePrice < value.startingBid) {
+    if (
+      value.reservePrice !== null &&
+      value.startingBid !== null &&
+      value.startingBid !== undefined &&
+      value.reservePrice < value.startingBid
+    ) {
       context.addIssue({
         code: "custom",
         message: "Reserve price must be at least the starting bid.",

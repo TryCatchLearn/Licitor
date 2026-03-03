@@ -51,6 +51,10 @@ const buildPlaceholderDraft = () => {
   };
 };
 
+const resolveStartingBid = (startingBid: number | null | undefined) => {
+  return startingBid ?? 0;
+};
+
 export const createDraftListingAction = async (input: {
   imageUrl: string;
   publicId: string;
@@ -68,6 +72,8 @@ export const createDraftListingAction = async (input: {
   const listingId = randomUUID();
   const listingImageId = randomUUID();
   const now = new Date();
+  const defaultEndAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const startingBid = resolveStartingBid(draftValues.startingBid);
 
   db.transaction((tx) => {
     tx.insert(listings)
@@ -79,11 +85,11 @@ export const createDraftListingAction = async (input: {
         category: draftValues.category,
         condition: draftValues.condition,
         reservePrice: draftValues.reservePrice,
-        startingBid: draftValues.startingBid,
-        currentBid: draftValues.startingBid,
+        startingBid,
+        currentBid: startingBid,
         bidCount: 0,
         startAt: null,
-        endAt: null,
+        endAt: defaultEndAt,
         status: "Draft",
         location: draftValues.location,
         createdAt: now,
@@ -145,9 +151,13 @@ const assertListingCanManageImages = (listing: { status: ListingStatus }) => {
 };
 
 const assertListingCanSetMainImage = (listing: { status: ListingStatus }) => {
-  if (listing.status !== "Draft" && listing.status !== "Active") {
+  if (
+    listing.status !== "Draft" &&
+    listing.status !== "Active" &&
+    listing.status !== "Scheduled"
+  ) {
     throw new Error(
-      "Main image can only be changed while listing is in draft or active.",
+      "Main image can only be changed while listing is in draft, active, or scheduled.",
     );
   }
 };
@@ -228,7 +238,7 @@ export const deleteListingImageAction = async (input: {
     throw new Error("Listing not found.");
   }
 
-  assertListingCanSetMainImage(listing);
+  assertListingCanManageImages(listing);
 
   const targetImage = listing.images.find(
     (image) => image.id === parsed.data.imageId,
@@ -281,7 +291,7 @@ export const setMainListingImageAction = async (input: {
     throw new Error("Listing not found.");
   }
 
-  assertListingCanManageImages(listing);
+  assertListingCanSetMainImage(listing);
 
   const targetImage = listing.images.find(
     (image) => image.id === parsed.data.imageId,
@@ -337,19 +347,19 @@ export const updateListingDraftAction = async (
   }
 
   const nextValues = parsed.data;
+  const nextStartingBid = resolveStartingBid(nextValues.startingBid);
 
   db.update(listings)
     .set({
       category: nextValues.category,
       condition: nextValues.condition,
-      currentBid:
-        listing.bidCount === 0 ? nextValues.startingBid : listing.currentBid,
+      currentBid: listing.bidCount === 0 ? nextStartingBid : listing.currentBid,
       description: nextValues.description,
       endAt: nextValues.endAt,
       location: nextValues.location,
       reservePrice: nextValues.reservePrice,
       startAt: nextValues.startAt,
-      startingBid: nextValues.startingBid,
+      startingBid: nextStartingBid,
       status: "Draft",
       title: nextValues.title,
       updatedAt: new Date(),
@@ -370,10 +380,8 @@ export const publishListingAction = async (listingId: string) => {
     throw new Error("Listing not found.");
   }
 
-  assertListingCanBeEdited(listing);
-
-  if (!listing.endAt) {
-    throw new Error("Add an end date before publishing this listing.");
+  if (listing.status !== "Draft") {
+    throw new Error("Only draft listings can be published.");
   }
 
   const now = Date.now();
@@ -406,8 +414,10 @@ export const returnListingToDraftAction = async (listingId: string) => {
 
   assertListingCanBeEdited(listing);
 
-  if (listing.status !== "Active") {
-    throw new Error("Only active listings can be returned to draft.");
+  if (listing.status !== "Active" && listing.status !== "Scheduled") {
+    throw new Error(
+      "Only active or scheduled listings can be returned to draft.",
+    );
   }
 
   db.update(listings)

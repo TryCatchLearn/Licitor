@@ -2,7 +2,7 @@
 
 ## Document Metadata
 - Project: `licitor`
-- Last updated: 2026-03-01
+- Last updated: 2026-03-03
 - Owner: Product + Engineering
 - Status legend: `Not Started`, `In Progress`, `Blocked`, `Accepted`
 
@@ -10,7 +10,7 @@
 | Phase | Name | Status | Acceptance Gate |
 |---|---|---|---|
 | 0 | Foundation and Tooling | Accepted | Build + lint + unit + integration baseline stable |
-| 1 | Listing Creation and Management | In Progress | Listing CRUD + image upload + validation complete |
+| 1 | Listing Creation and Management | Accepted | Listing CRUD + image upload + validation complete |
 | 2 | Browse and Search Listings | Not Started | Search/filter UX and query performance accepted |
 | 3 | Bidding and Real-Time Updates | Not Started | Bid flow + concurrency + live updates accepted |
 | 4 | Auction Finalization and Notifications | Not Started | Auction close job + winner selection + notifications accepted |
@@ -166,12 +166,13 @@ Approval note: Approved on 2026-02-27.
 - Local quality gates pass: lint, build, unit, integration.
 
 ## Phase 1 - Listing Creation and Management
+Approval note: Approved on 2026-03-03.
 ### Scope
 - Phase 1 covers listing schema expansion, seeded data, seller-facing draft/publish/edit/delete flows, public browse cards, personal listing management, create-listing upload UX, and listing details display.
 
 ### Models
 #### Listing
-- Fields: `id`, `title`, `description`, `category`, `condition`, `reservePrice`, `startingBid`, `currentBid`, `bidCount`, `startAt`, `endAt`, `status`, `sellerId`, `location`, `createdAt`, `updatedAt`
+- Fields: `id`, `title`, `description`, `category`, `condition`, `reservePrice`, `startingBid` (nullable), `currentBid` (nullable), `bidCount`, `startAt`, `endAt`, `status`, `sellerId`, `location`, `createdAt`, `updatedAt`
 - Relations: `seller`, `images[]`
 
 #### ListingImage
@@ -283,6 +284,7 @@ Approval note: Approved on 2026-02-27.
 |---|---|
 | Draft | `Refine Listing` (opens form modal), `Publish` (immediate if no start date, scheduled if future date), `Delete` (hard delete, removes Cloudinary images, shadcn confirmation dialog warning this is permanent) |
 | Active | `Return to Draft` only (shadcn confirmation dialog warning listing will be locked to bids) |
+| Scheduled | `Return to Draft` only (shadcn confirmation dialog warning listing will be locked to bids) |
 
 ##### If not owner
 - Show a placeholder bid controls panel in Phase 1.
@@ -294,7 +296,7 @@ Approval note: Approved on 2026-02-27.
 - Editable fields:
 - Title, Description, Location on individual rows
 - Category and Condition on the same row
-- Starting Bid and Reserve Price (optional) on the same row
+- Starting Bid (optional) and Reserve Price (optional) on the same row
 - Start At (optional) and Ends At on the same row
 - Include a `Save Draft` button only.
 - Saving the modal must not publish the listing. Publishing remains an explicit seller control action.
@@ -304,6 +306,7 @@ Approval note: Approved on 2026-02-27.
 - The first bid locks the listing from further edits.
 - Entering edit mode sets listing status to `Draft` to prevent bidding during editing.
 - If editing is abandoned, such as by closing the browser, the listing remains in `Draft` until the owner explicitly republishes it.
+- `startAt` is optional; if provided it must be in the future.
 - Draft listings are hidden from the public `/listings` page.
 - Bid rejection for `Draft` listings will be enforced during the bidding phase and should be noted as deferred work here.
 
@@ -313,7 +316,8 @@ Approval note: Approved on 2026-02-27.
 - Upload progress must use XHR tracking so the UI can display percentage completion.
 - The `Continue` path uses hardcoded placeholder JSON in Phase 1 and will be replaced by the AI Smart Listing Creator in Phase 6.
 - The Phase 1 schema includes a temporary `bidCount` integer on `Listing` to support seeded/demo UI; it can be normalized later when a dedicated bidding model is introduced.
-- `currentBid` is stored on `Listing` in Phase 1 and is seed-driven for display.
+- `startingBid` and `currentBid` are nullable on `Listing` in Phase 1; missing values are treated as `0` for listing behavior and display.
+- Owners can set the main image while listing status is `Draft`, `Active`, or `Scheduled`; uploading/deleting gallery images remains draft-only.
 - Public `/listings` excludes `Draft`; `Scheduled` and `Ended` remain visible unless a later phase revises browse visibility.
 - Time-remaining display should map to lifecycle state:
 - `Active`: time until `endAt`

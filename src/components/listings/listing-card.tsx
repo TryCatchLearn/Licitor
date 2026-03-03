@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 type ListingCardProps = {
   bidCount: number;
-  currentBid: number;
+  currentBid: number | null;
   endAt: Date | null;
   href: string;
   imageUrl: string | null;
@@ -85,7 +85,7 @@ export function ListingCard({
                 Current price
               </p>
               <p className="text-xl font-semibold text-primary">
-                {formatListingCurrency(currentBid)}
+                {formatListingCurrency(currentBid ?? 0)}
               </p>
             </div>
             <div className="space-y-1 text-right">
