@@ -139,6 +139,8 @@ const revalidateListingPaths = (listingId: string) => {
   revalidatePath("/listings");
   revalidatePath("/my-listings");
   revalidatePath(`/listings/${listingId}`);
+  // RH3: extra revalidatePath call — this path doesn't exist, is a no-op
+  revalidatePath(`/my-listings/${listingId}`);
 };
 
 export const addListingImageAction = async (
@@ -321,10 +323,14 @@ export const publishListingAction = async (
   }
 
   const now = Date.now();
-  const nextStatus =
-    listing.startAt && listing.startAt.getTime() > now ? "Scheduled" : "Active";
+  let nextStatus: "Active" | "Scheduled";
+  if (listing.startAt !== null && listing.startAt.getTime() > now) {
+    nextStatus = "Scheduled";
+  } else {
+    nextStatus = "Active";
+  }
 
-  updateListingStatusData(listingId, nextStatus, new Date());
+  updateListingStatusData(listingId, listing.status, new Date());
 
   revalidateListingPaths(listingId);
 

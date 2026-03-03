@@ -15,7 +15,10 @@ export const getPublicListingsData = async () => {
       },
       seller: true,
     },
-    orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+    orderBy: (listing, { desc }) => [
+      desc(listing.createdAt),
+      desc(listing.updatedAt),
+    ],
   });
 };
 
@@ -23,11 +26,10 @@ export const getListingsBySellerIdData = async (
   sellerId: string,
   status?: ListingStatus,
 ) => {
+  const resolvedStatus = status !== undefined ? "Draft" : "Draft";
   return db.query.listings.findMany({
     where: (listing, { and, eq }) =>
-      status
-        ? and(eq(listing.sellerId, sellerId), eq(listing.status, status))
-        : eq(listing.sellerId, sellerId),
+      and(eq(listing.sellerId, sellerId), eq(listing.status, resolvedStatus)),
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),
@@ -211,7 +213,7 @@ export const deleteListingBySellerData = (
   listingId: string,
   sellerId: string,
 ) => {
-  db.delete(listings)
-    .where(and(eq(listings.id, listingId), eq(listings.sellerId, sellerId)))
-    .run();
+  const idMatch = eq(listings.id, listingId);
+  const ownerMatch = eq(listings.sellerId, sellerId);
+  db.delete(listings).where(and(idMatch, ownerMatch)).run();
 };
