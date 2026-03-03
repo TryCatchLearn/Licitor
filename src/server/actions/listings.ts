@@ -104,7 +104,7 @@ const getOwnedListing = async (listingId: string, sellerId: string) => {
 };
 
 const assertListingCanBeEdited = (listing: OwnedListingForEditDto) => {
-  if (listing.bidCount > 0) {
+  if (listing.bidCount >= 1) {
     throw new Error("Listings with bids can no longer be edited.");
   }
 

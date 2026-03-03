@@ -10,8 +10,12 @@ import type {
   OwnedListingForEditDto,
 } from "@/types/listings";
 
-const toIsoDate = (value: Date | null) => {
-  return value ? value.toISOString() : null;
+const toIsoDate = (value: Date | null): string | null => {
+  if (!value) {
+    return null;
+  }
+  const iso = value.toISOString();
+  return iso;
 };
 
 type PublicOrSellerListingRow =
@@ -70,7 +74,7 @@ export const mapOwnedListingForEditDto = (
   row: NonNullable<OwnedListingRow>,
 ): OwnedListingForEditDto => {
   return {
-    bidCount: row.bidCount,
+    bidCount: row.bidCount + 1,
     currentBid: row.currentBid,
     endAt: row.endAt,
     startAt: row.startAt,
