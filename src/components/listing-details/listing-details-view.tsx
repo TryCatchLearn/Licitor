@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 
 import { ListingSellerControls } from "@/components/listing-details/listing-seller-controls";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -105,14 +106,12 @@ export function ListingDetailsView({
 
   return (
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-12">
-      <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.22em] text-primary">
-          Listing details
-        </p>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <h1 className="max-w-4xl text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            {title}
-          </h1>
+      <PageHeader
+        eyebrow="Listing details"
+        title={title}
+        className="space-y-2"
+        titleClassName="max-w-4xl tracking-tight"
+        rightSlot={
           <Badge
             variant="outline"
             className={cn(
@@ -122,8 +121,8 @@ export function ListingDetailsView({
           >
             {status}
           </Badge>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-border/70 bg-background/50 px-4 py-3">

@@ -1,6 +1,7 @@
 import { ProfileForm } from "@/components/profile/profile-form";
+import { CardSectionHeader } from "@/components/shared/card-section-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import { getCurrentProfile } from "@/server/queries/profile";
 
@@ -27,9 +28,7 @@ export default async function ProfilePage() {
     <section className="mx-auto flex w-full max-w-6xl px-6 py-12 md:py-16">
       <div className="grid w-full gap-6 lg:grid-cols-[320px_1fr]">
         <Card className="h-fit py-6">
-          <CardHeader>
-            <CardTitle className="text-xl">My Profile</CardTitle>
-          </CardHeader>
+          <CardSectionHeader title="My Profile" />
           <CardContent className="space-y-5">
             <Avatar className="mx-auto !h-auto !w-3/4 aspect-square rounded-2xl">
               <AvatarImage src={profile.image ?? undefined} alt={displayName} />
@@ -60,9 +59,7 @@ export default async function ProfilePage() {
         </Card>
 
         <Card className="py-6">
-          <CardHeader>
-            <CardTitle className="text-xl">Edit Details</CardTitle>
-          </CardHeader>
+          <CardSectionHeader title="Edit Details" />
           <CardContent>
             <ProfileForm
               profile={{

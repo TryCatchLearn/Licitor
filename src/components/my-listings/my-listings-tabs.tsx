@@ -3,8 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
+import { EmptyStateCard } from "@/components/shared/empty-state-card";
 import { ListingCard } from "@/components/shared/listing-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ListingStatus } from "@/lib/db/schema";
 
@@ -81,23 +81,11 @@ export function MyListingsTabs({
       </TabsList>
 
       {listings.length === 0 ? (
-        <Card className="border-dashed border-border/70 bg-card/70 py-0">
-          <CardHeader className="gap-3 px-6 py-6">
-            <p className="text-sm uppercase tracking-[0.2em] text-primary">
-              No {activeTabLabel.toLowerCase()}
-            </p>
-            <CardTitle className="text-2xl">
-              Nothing is in {activeTabLabel.toLowerCase()} right now.
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-6">
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Listings you create will appear here under their current auction
-              status, so you can separate private drafts from live and completed
-              inventory.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyStateCard
+          eyebrow={`No ${activeTabLabel.toLowerCase()}`}
+          title={`Nothing is in ${activeTabLabel.toLowerCase()} right now.`}
+          description="Listings you create will appear here under their current auction status, so you can separate private drafts from live and completed inventory."
+        />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {listings.map((listing, index) => (

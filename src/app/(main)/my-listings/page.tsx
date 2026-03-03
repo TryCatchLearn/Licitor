@@ -1,4 +1,5 @@
 import { MyListingsTabs } from "@/components/my-listings/my-listings-tabs";
+import { PageHeader } from "@/components/shared/page-header";
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import type { ListingStatus } from "@/lib/db/schema";
 import { getListingsBySellerId } from "@/server/queries/listings";
@@ -34,18 +35,11 @@ export default async function MyListingsPage({
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-      <div className="space-y-3">
-        <p className="text-sm uppercase tracking-[0.22em] text-primary">
-          Seller inventory
-        </p>
-        <h1 className="text-3xl font-semibold text-foreground md:text-4xl">
-          My listings
-        </h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Review only your auctions, split by drafts, live listings, scheduled
-          launches, and completed sales.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Seller inventory"
+        title="My listings"
+        description="Review only your auctions, split by drafts, live listings, scheduled launches, and completed sales."
+      />
 
       <MyListingsTabs
         initialStatus={activeStatus}
