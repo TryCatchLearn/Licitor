@@ -320,9 +320,12 @@ export const publishListingAction = async (
     throw new Error("Only draft listings can be published.");
   }
 
-  const now = Date.now();
+  const publishTimestamp = Date.now();
+
   const nextStatus =
-    listing.startAt && listing.startAt.getTime() > now ? "Scheduled" : "Active";
+    listing.startAt && listing.startAt.getTime() > publishTimestamp
+      ? "Active"
+      : "Scheduled";
 
   updateListingStatusData(listingId, nextStatus, new Date());
 

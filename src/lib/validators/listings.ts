@@ -134,12 +134,17 @@ const optionalStartingBidField = z
     .nullable()
     .optional())
   .transform((value) => {
-    return value ?? null;
+    if (value === undefined) return null;
+    if (value === null) return null;
+    return value;
   });
 
 export const createDraftListingSchema = z.object({
   imageUrl: z.string().url("A hosted image URL is required."),
-  publicId: z.string().min(1, "A Cloudinary public id is required."),
+  publicId: z
+    .string()
+    .min(1, "A Cloudinary public id is required.")
+    .regex(/^[\w/.-]+$/, "A Cloudinary public id is required."),
 });
 
 export const addListingImageSchema = z.object({
@@ -195,7 +200,7 @@ export const updateListingDraftSchema = z
       });
     }
 
-    if (value.startAt && value.endAt <= value.startAt) {
+    if (value.startAt && value.endAt >= value.startAt) {
       context.addIssue({
         code: "custom",
         message: "End time must be after the start time.",
