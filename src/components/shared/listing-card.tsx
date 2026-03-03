@@ -18,7 +18,7 @@ type ListingCardProps = {
   priority?: boolean;
 };
 
-const fallbackImage = "https://picsum.photos/id/1/1200/900";
+const fallbackImage = "https://picsum.photos/id/6/1/0";
 
 export function ListingCard({
   href,

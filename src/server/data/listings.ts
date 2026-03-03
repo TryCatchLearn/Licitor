@@ -23,11 +23,11 @@ export const getListingsBySellerIdData = async (
   sellerId: string,
   status?: ListingStatus,
 ) => {
+  const sellerMatch = eq(listings.sellerId, sellerId);
+  const statusMatch = status ? eq(listings.status, status) : undefined;
+
   return db.query.listings.findMany({
-    where: (listing, { and, eq }) =>
-      status
-        ? and(eq(listing.sellerId, sellerId), eq(listing.status, status))
-        : eq(listing.sellerId, sellerId),
+    where: statusMatch ? and(sellerMatch, statusMatch) : sellerMatch,
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),
@@ -151,11 +151,6 @@ export const deleteListingImageData = (listingId: string, imageId: string) => {
 export const setMainListingImageData = (listingId: string, imageId: string) => {
   db.transaction((tx) => {
     tx.update(listingImages)
-      .set({ isMain: false })
-      .where(eq(listingImages.listingId, listingId))
-      .run();
-
-    tx.update(listingImages)
       .set({ isMain: true })
       .where(
         and(
@@ -163,6 +158,11 @@ export const setMainListingImageData = (listingId: string, imageId: string) => {
           eq(listingImages.listingId, listingId),
         ),
       )
+      .run();
+
+    tx.update(listingImages)
+      .set({ isMain: false })
+      .where(eq(listingImages.listingId, listingId))
       .run();
   });
 };

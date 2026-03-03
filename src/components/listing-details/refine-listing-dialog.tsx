@@ -1,6 +1,8 @@
 "use client";
 
+import type { SubmitEventHandler } from "react";
 import type { UseFormReturn } from "react-hook-form";
+import { useFormState } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +29,7 @@ type RefineListingDialogProps = {
     UpdateListingDraftValues
   >;
   onOpenChange: (open: boolean) => void;
-  onSubmit: () => void;
+  onSubmit: SubmitEventHandler<HTMLFormElement>;
   open: boolean;
   submitError: string | null;
   submitSuccess: string | null;
@@ -44,6 +46,10 @@ export function RefineListingDialog({
   submitError,
   submitSuccess,
 }: RefineListingDialogProps) {
+  const { errors, isSubmitting } = useFormState({
+    control: form.control,
+  });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88vh] overflow-y-auto">
@@ -59,10 +65,8 @@ export function RefineListingDialog({
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input id="title" {...form.register("title")} />
-            {form.formState.errors.title ? (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.title.message}
-              </p>
+            {errors.title ? (
+              <p className="text-sm text-destructive">{errors.title.message}</p>
             ) : null}
           </div>
 
@@ -73,9 +77,9 @@ export function RefineListingDialog({
               rows={6}
               {...form.register("description")}
             />
-            {form.formState.errors.description ? (
+            {errors.description ? (
               <p className="text-sm text-destructive">
-                {form.formState.errors.description.message}
+                {errors.description.message}
               </p>
             ) : null}
           </div>
@@ -83,9 +87,9 @@ export function RefineListingDialog({
           <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
             <Input id="location" {...form.register("location")} />
-            {form.formState.errors.location ? (
+            {errors.location ? (
               <p className="text-sm text-destructive">
-                {form.formState.errors.location.message}
+                {errors.location.message}
               </p>
             ) : null}
           </div>
@@ -104,9 +108,9 @@ export function RefineListingDialog({
                   </option>
                 ))}
               </select>
-              {form.formState.errors.category ? (
+              {errors.category ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.category.message}
+                  {errors.category.message}
                 </p>
               ) : null}
             </div>
@@ -124,9 +128,9 @@ export function RefineListingDialog({
                   </option>
                 ))}
               </select>
-              {form.formState.errors.condition ? (
+              {errors.condition ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.condition.message}
+                  {errors.condition.message}
                 </p>
               ) : null}
             </div>
@@ -141,9 +145,9 @@ export function RefineListingDialog({
                 placeholder="Optional (defaults to 0.00)"
                 {...form.register("startingBid")}
               />
-              {form.formState.errors.startingBid ? (
+              {errors.startingBid ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.startingBid.message}
+                  {errors.startingBid.message}
                 </p>
               ) : null}
             </div>
@@ -156,9 +160,9 @@ export function RefineListingDialog({
                 placeholder="Optional"
                 {...form.register("reservePrice")}
               />
-              {form.formState.errors.reservePrice ? (
+              {errors.reservePrice ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.reservePrice.message}
+                  {errors.reservePrice.message}
                 </p>
               ) : null}
             </div>
@@ -172,9 +176,9 @@ export function RefineListingDialog({
                 type="datetime-local"
                 {...form.register("startAt")}
               />
-              {form.formState.errors.startAt ? (
+              {errors.startAt ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.startAt.message}
+                  {errors.startAt.message}
                 </p>
               ) : null}
             </div>
@@ -186,9 +190,9 @@ export function RefineListingDialog({
                 type="datetime-local"
                 {...form.register("endAt")}
               />
-              {form.formState.errors.endAt ? (
+              {errors.endAt ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.endAt.message}
+                  {errors.endAt.message}
                 </p>
               ) : null}
             </div>
@@ -205,13 +209,13 @@ export function RefineListingDialog({
             <Button
               type="button"
               variant="outline"
-              disabled={form.formState.isSubmitting}
+              disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
             >
               Close
             </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save draft"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save draft"}
             </Button>
           </DialogFooter>
         </form>
