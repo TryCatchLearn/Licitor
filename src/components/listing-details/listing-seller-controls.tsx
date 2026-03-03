@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 import { ListingActionAlertDialog } from "@/components/listing-details/listing-action-alert-dialog";
@@ -29,37 +29,23 @@ type ListingSellerControlsProps = {
 export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [isOpeningEdit, setIsOpeningEdit] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const startAt = listing.startAt ? new Date(listing.startAt) : null;
   const endAt = listing.endAt ? new Date(listing.endAt) : null;
 
-  const defaultValues = useMemo<UpdateListingDraftInput>(
-    () => ({
-      category: listing.category,
-      condition: listing.condition,
-      description: listing.description,
-      endAt: formatDateTimeInput(endAt),
-      location: listing.location ?? "",
-      reservePrice: formatMoneyInput(listing.reservePrice),
-      startAt: formatDateTimeInput(startAt),
-      startingBid: formatMoneyInput(listing.startingBid),
-      title: listing.title,
-    }),
-    [
-      endAt,
-      listing.category,
-      listing.condition,
-      listing.description,
-      listing.location,
-      listing.reservePrice,
-      listing.startingBid,
-      listing.title,
-      startAt,
-    ],
-  );
+  const defaultValues: UpdateListingDraftInput = {
+    category: listing.category,
+    condition: listing.condition,
+    description: listing.description,
+    endAt: formatDateTimeInput(endAt),
+    location: listing.location ?? "",
+    reservePrice: formatMoneyInput(listing.reservePrice),
+    startAt: formatDateTimeInput(startAt),
+    startingBid: formatMoneyInput(listing.startingBid),
+    title: listing.title,
+  };
 
   const form = useForm<
     UpdateListingDraftInput,
@@ -75,20 +61,10 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
     setSubmitSuccess(null);
   };
 
-  const openEditDialog = async () => {
+  const openEditDialog = () => {
     resetFeedback();
-    setIsOpeningEdit(true);
-
-    try {
-      form.reset(defaultValues);
-      setDialogOpen(true);
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Unable to refine listing.",
-      );
-    } finally {
-      setIsOpeningEdit(false);
-    }
+    form.reset(defaultValues);
+    setDialogOpen(true);
   };
 
   const saveDraft = form.handleSubmit(async (values) => {
@@ -174,10 +150,10 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
               type="button"
               variant="outline"
               className="h-11 border-border/80 bg-background/70 font-medium tracking-[0.02em] hover:border-primary/45 hover:bg-primary/5"
-              disabled={isPending || isOpeningEdit || editingLocked}
+              disabled={isPending || editingLocked}
               onClick={openEditDialog}
             >
-              {isOpeningEdit ? "Opening..." : "Refine listing"}
+              Refine listing
             </Button>
           ) : null}
 

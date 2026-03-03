@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,19 +29,14 @@ export function ProfileForm({ profile, sessionUser }: ProfileFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
-  const defaultValues = useMemo(
-    () => ({
+  const form = useForm<ProfileUpdateInput>({
+    resolver: zodResolver(profileUpdateSchema),
+    defaultValues: {
       name: profile.name,
       image: profile.image ?? "",
       bio: profile.bio ?? "",
       location: profile.location ?? "",
-    }),
-    [profile],
-  );
-
-  const form = useForm<ProfileUpdateInput>({
-    resolver: zodResolver(profileUpdateSchema),
-    defaultValues,
+    },
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
