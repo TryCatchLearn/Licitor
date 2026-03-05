@@ -34,6 +34,7 @@ export function ListingImageHero() {
           data-testid="listing-main-image"
           fill
           priority
+          sizes="(max-width: 768px) 100vw, 80vw"
           src={selectedImage?.url ?? fallbackImage}
         />
         <span className="sr-only">Preview main listing image</span>

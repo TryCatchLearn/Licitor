@@ -166,7 +166,8 @@ Acceptance Criteria:
 - [x] Draft listings remain hidden from public browse.
 
 ## Phase 2 - Browse and Search Listings
-Status: In Progress
+Status: Accepted
+Approval note: Approved on 2026-03-05.
 
 ### Sub-Phase 2A: Seed Data and Status tabs
 Goal: Deliver realistic browse seed data and status-tab filtering on `/listings`.
@@ -328,3 +329,4 @@ Status: Not Started
 - 2026-02-27: Initial phase plan created.
 - 2026-02-27: Phase 0 implemented with grouped route migration, canonical `src/lib/db` + `src/lib/validators` paths, transaction-based integration test harness, fixture factories, and MSW baseline mocking.
 - 2026-02-27: Phase 0 formally approved; tracking moved to Phase 1 in progress.
+- 2026-03-05: Phase 2 formally approved; status updated to Accepted in `tasks/todo.md` and `tasks/spec.md`.

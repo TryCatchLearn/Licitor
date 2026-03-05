@@ -2,7 +2,7 @@
 
 ## Document Metadata
 - Project: `licitor`
-- Last updated: 2026-03-03
+- Last updated: 2026-03-05
 - Owner: Product + Engineering
 - Status legend: `Not Started`, `In Progress`, `Blocked`, `Accepted`
 
@@ -11,7 +11,7 @@
 |---|---|---|---|
 | 0 | Foundation and Tooling | Accepted | Build + lint + unit + integration baseline stable |
 | 1 | Listing Creation and Management | Accepted | Listing CRUD + image upload + validation complete |
-| 2 | Browse and Search Listings | Not Started | Search/filter UX and query performance accepted |
+| 2 | Browse and Search Listings | Accepted | Search/filter UX and query performance accepted |
 | 3 | Bidding and Real-Time Updates | Not Started | Bid flow + concurrency + live updates accepted |
 | 4 | Auction Finalization and Notifications | Not Started | Auction close job + winner selection + notifications accepted |
 | 5 | User Dashboard | Not Started | My listings, bids, watching views accepted |
@@ -356,6 +356,7 @@ Approval note: Approved on 2026-03-03.
 - Listings with bids reject editing.
 
 ## Phase 2 - Browse and Search Listings
+Approval note: Approved on 2026-03-05.
 ### Scope
 - Expand browse UX for `/listings` and `/my-listings` with realistic seeded inventory, status tabs, multi-filter + sort controls, navbar search, and shared offset-based pagination.
 - Ensure browse state is URL-driven (search/filter/sort/pagination) for shareable and restorable views.

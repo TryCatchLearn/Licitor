@@ -1,6 +1,6 @@
 "use client";
 
-import type { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn, useFormState } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +29,6 @@ type RefineListingDialogProps = {
   onOpenChange: (open: boolean) => void;
   onSubmit: () => void;
   open: boolean;
-  submitError: string | null;
-  submitSuccess: string | null;
 };
 
 const fieldClassName =
@@ -41,9 +39,13 @@ export function RefineListingDialog({
   onOpenChange,
   onSubmit,
   open,
-  submitError,
-  submitSuccess,
 }: RefineListingDialogProps) {
+  const { errors, isSubmitting } = useFormState({
+    control: form.control,
+  });
+  const rootErrorMessage =
+    errors.root?.server?.message ?? errors.root?.message ?? null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88vh] overflow-y-auto">
@@ -55,14 +57,20 @@ export function RefineListingDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-4" onSubmit={onSubmit}>
+        <form className="space-y-4" noValidate onSubmit={onSubmit}>
+          {rootErrorMessage ? (
+            <p className="text-sm text-destructive">{rootErrorMessage}</p>
+          ) : null}
+
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" {...form.register("title")} />
-            {form.formState.errors.title ? (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.title.message}
-              </p>
+            <Input
+              id="title"
+              aria-invalid={Boolean(errors.title)}
+              {...form.register("title")}
+            />
+            {errors.title ? (
+              <p className="text-sm text-destructive">{errors.title.message}</p>
             ) : null}
           </div>
 
@@ -70,22 +78,27 @@ export function RefineListingDialog({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
+              aria-invalid={Boolean(errors.description)}
               rows={6}
               {...form.register("description")}
             />
-            {form.formState.errors.description ? (
+            {errors.description ? (
               <p className="text-sm text-destructive">
-                {form.formState.errors.description.message}
+                {errors.description.message}
               </p>
             ) : null}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
-            <Input id="location" {...form.register("location")} />
-            {form.formState.errors.location ? (
+            <Input
+              id="location"
+              aria-invalid={Boolean(errors.location)}
+              {...form.register("location")}
+            />
+            {errors.location ? (
               <p className="text-sm text-destructive">
-                {form.formState.errors.location.message}
+                {errors.location.message}
               </p>
             ) : null}
           </div>
@@ -95,6 +108,7 @@ export function RefineListingDialog({
               <Label htmlFor="category">Category</Label>
               <select
                 id="category"
+                aria-invalid={Boolean(errors.category)}
                 className={fieldClassName}
                 {...form.register("category")}
               >
@@ -104,9 +118,9 @@ export function RefineListingDialog({
                   </option>
                 ))}
               </select>
-              {form.formState.errors.category ? (
+              {errors.category ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.category.message}
+                  {errors.category.message}
                 </p>
               ) : null}
             </div>
@@ -115,6 +129,7 @@ export function RefineListingDialog({
               <Label htmlFor="condition">Condition</Label>
               <select
                 id="condition"
+                aria-invalid={Boolean(errors.condition)}
                 className={fieldClassName}
                 {...form.register("condition")}
               >
@@ -124,9 +139,9 @@ export function RefineListingDialog({
                   </option>
                 ))}
               </select>
-              {form.formState.errors.condition ? (
+              {errors.condition ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.condition.message}
+                  {errors.condition.message}
                 </p>
               ) : null}
             </div>
@@ -137,13 +152,14 @@ export function RefineListingDialog({
               <Label htmlFor="startingBid">Starting Bid</Label>
               <Input
                 id="startingBid"
+                aria-invalid={Boolean(errors.startingBid)}
                 inputMode="decimal"
                 placeholder="Optional (defaults to 0.00)"
                 {...form.register("startingBid")}
               />
-              {form.formState.errors.startingBid ? (
+              {errors.startingBid ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.startingBid.message}
+                  {errors.startingBid.message}
                 </p>
               ) : null}
             </div>
@@ -152,13 +168,14 @@ export function RefineListingDialog({
               <Label htmlFor="reservePrice">Reserve Price</Label>
               <Input
                 id="reservePrice"
+                aria-invalid={Boolean(errors.reservePrice)}
                 inputMode="decimal"
                 placeholder="Optional"
                 {...form.register("reservePrice")}
               />
-              {form.formState.errors.reservePrice ? (
+              {errors.reservePrice ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.reservePrice.message}
+                  {errors.reservePrice.message}
                 </p>
               ) : null}
             </div>
@@ -170,11 +187,12 @@ export function RefineListingDialog({
               <Input
                 id="startAt"
                 type="datetime-local"
+                aria-invalid={Boolean(errors.startAt)}
                 {...form.register("startAt")}
               />
-              {form.formState.errors.startAt ? (
+              {errors.startAt ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.startAt.message}
+                  {errors.startAt.message}
                 </p>
               ) : null}
             </div>
@@ -184,34 +202,28 @@ export function RefineListingDialog({
               <Input
                 id="endAt"
                 type="datetime-local"
+                aria-invalid={Boolean(errors.endAt)}
                 {...form.register("endAt")}
               />
-              {form.formState.errors.endAt ? (
+              {errors.endAt ? (
                 <p className="text-sm text-destructive">
-                  {form.formState.errors.endAt.message}
+                  {errors.endAt.message}
                 </p>
               ) : null}
             </div>
           </div>
 
-          {submitSuccess ? (
-            <p className="text-sm text-emerald-600">{submitSuccess}</p>
-          ) : null}
-          {submitError ? (
-            <p className="text-sm text-destructive">{submitError}</p>
-          ) : null}
-
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              disabled={form.formState.isSubmitting}
+              disabled={isSubmitting}
               onClick={() => onOpenChange(false)}
             >
               Close
             </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save draft"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save draft"}
             </Button>
           </DialogFooter>
         </form>

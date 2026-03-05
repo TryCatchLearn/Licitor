@@ -30,8 +30,7 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const startAt = listing.startAt ? new Date(listing.startAt) : null;
   const endAt = listing.endAt ? new Date(listing.endAt) : null;
 
@@ -54,43 +53,42 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   >({
     defaultValues,
     resolver: zodResolver(updateListingDraftSchema),
+    shouldFocusError: true,
   });
 
-  const resetFeedback = () => {
-    setSubmitError(null);
-    setSubmitSuccess(null);
-  };
-
   const openEditDialog = () => {
-    resetFeedback();
+    setActionError(null);
     form.reset(defaultValues);
+    form.clearErrors();
     setDialogOpen(true);
   };
 
   const saveDraft = form.handleSubmit(async (values) => {
-    resetFeedback();
+    setActionError(null);
+    form.clearErrors("root");
 
     try {
       await updateListingDraftAction(listing.id, values);
       setDialogOpen(false);
-      setSubmitSuccess("Draft saved.");
       router.refresh();
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Unable to save draft.",
-      );
+      form.setError("root.server", {
+        message:
+          error instanceof Error ? error.message : "Unable to save draft.",
+        type: "server",
+      });
     }
   });
 
   const publishListing = () => {
-    resetFeedback();
+    setActionError(null);
     startTransition(async () => {
       try {
         await publishListingAction(listing.id);
         setDialogOpen(false);
         router.refresh();
       } catch (error) {
-        setSubmitError(
+        setActionError(
           error instanceof Error ? error.message : "Unable to publish listing.",
         );
       }
@@ -98,13 +96,13 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   };
 
   const returnToDraft = () => {
-    resetFeedback();
+    setActionError(null);
     startTransition(async () => {
       try {
         await returnListingToDraftAction(listing.id);
         router.refresh();
       } catch (error) {
-        setSubmitError(
+        setActionError(
           error instanceof Error
             ? error.message
             : "Unable to return listing to draft.",
@@ -114,14 +112,14 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
   };
 
   const deleteListing = () => {
-    resetFeedback();
+    setActionError(null);
     startTransition(async () => {
       try {
         await deleteListingAction(listing.id);
         router.push("/my-listings");
         router.refresh();
       } catch (error) {
-        setSubmitError(
+        setActionError(
           error instanceof Error ? error.message : "Unable to delete listing.",
         );
       }
@@ -218,8 +216,8 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
           ) : null}
         </div>
 
-        {submitError ? (
-          <p className="text-sm text-destructive">{submitError}</p>
+        {actionError ? (
+          <p className="text-sm text-destructive">{actionError}</p>
         ) : null}
       </div>
 
@@ -228,8 +226,6 @@ export function ListingSellerControls({ listing }: ListingSellerControlsProps) {
         onOpenChange={setDialogOpen}
         onSubmit={saveDraft}
         open={dialogOpen}
-        submitError={submitError}
-        submitSuccess={submitSuccess}
       />
     </>
   );

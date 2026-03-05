@@ -2,17 +2,17 @@ import { z } from "zod";
 
 import { listingCategories, listingConditions } from "@/lib/db/schema";
 
-const parseMoneyToCents = (value: string, label: string) => {
+const parseMoneyToCents = (value: string) => {
   const normalized = value.trim();
 
   if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
-    throw new Error(`${label} must be a valid dollar amount.`);
+    return null;
   }
 
   const amount = Number(normalized);
 
-  if (!Number.isFinite(amount) || amount < 0) {
-    throw new Error(`${label} must be zero or greater.`);
+  if (!Number.isFinite(amount)) {
+    return null;
   }
 
   return Math.round(amount * 100);
@@ -71,40 +71,44 @@ const optionalDateTimeField = z
 
     return new Date(normalized);
   }, z.date({ error: "Choose a valid date and time." }).nullable())
-  .transform((value) => {
-    if (!value) {
-      return null;
+  .superRefine((value, context) => {
+    if (value && Number.isNaN(value.getTime())) {
+      context.addIssue({
+        code: "custom",
+        message: "Choose a valid date and time.",
+      });
     }
-
-    if (Number.isNaN(value.getTime())) {
-      throw new Error("Choose a valid date and time.");
-    }
-
-    return value;
   });
 
 const optionalPriceField = (label: string) =>
-  z.preprocess((value) => {
-    if (value === null || value === undefined || value === "") {
-      return null;
-    }
+  z.preprocess(
+    (value) => {
+      if (value === null || value === undefined || value === "") {
+        return null;
+      }
 
-    if (typeof value === "number") {
-      return value;
-    }
+      if (typeof value === "number") {
+        return value;
+      }
 
-    if (typeof value !== "string") {
-      return value;
-    }
+      if (typeof value !== "string") {
+        return value;
+      }
 
-    const normalized = value.trim();
+      const normalized = value.trim();
 
-    if (!normalized) {
-      return null;
-    }
+      if (!normalized) {
+        return null;
+      }
 
-    return parseMoneyToCents(normalized, label);
-  }, z.number().int().min(0, `${label} must be zero or greater.`).nullable());
+      return parseMoneyToCents(normalized) ?? Number.NaN;
+    },
+    z
+      .number({ error: `${label} must be a valid dollar amount.` })
+      .int()
+      .min(0, `${label} must be zero or greater.`)
+      .nullable(),
+  );
 
 const optionalStartingBidField = z
   .preprocess((value) => {
@@ -119,7 +123,7 @@ const optionalStartingBidField = z
         return null;
       }
 
-      return parseMoneyToCents(normalized, "Starting bid");
+      return parseMoneyToCents(normalized) ?? Number.NaN;
     }
 
     if (typeof value === "number") {

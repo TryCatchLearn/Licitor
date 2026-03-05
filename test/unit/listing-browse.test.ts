@@ -79,7 +79,9 @@ describe("listing browse helpers", () => {
 
     expect(parseListingPageSize("6")).toBe(6);
     expect(parseListingPageSize("48")).toBe(48);
-    expect(parseListingPageSize("99")).toBe(defaultListingPageSize);
+    expect(parseListingPageSize("99")).toBe(48);
+    expect(parseListingPageSize("1000")).toBe(48);
+    expect(parseListingPageSize("47")).toBe(defaultListingPageSize);
     expect(parseListingPageSize()).toBe(defaultListingPageSize);
   });
 

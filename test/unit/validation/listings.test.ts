@@ -64,4 +64,34 @@ describe("listing validation schema", () => {
       );
     }
   });
+
+  it("rejects invalid reservePrice format with a field validation message", () => {
+    const parsed = updateListingDraftSchema.safeParse({
+      ...buildValidInput(),
+      reservePrice: "twelve dollars",
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe(
+        "Reserve price must be a valid dollar amount.",
+      );
+      expect(parsed.error.issues[0]?.path).toEqual(["reservePrice"]);
+    }
+  });
+
+  it("rejects invalid startAt format with a field validation message", () => {
+    const parsed = updateListingDraftSchema.safeParse({
+      ...buildValidInput(),
+      startAt: "not-a-date",
+    });
+
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe(
+        "Choose a valid date and time.",
+      );
+      expect(parsed.error.issues[0]?.path).toEqual(["startAt"]);
+    }
+  });
 });

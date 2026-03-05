@@ -187,6 +187,16 @@ export const parseListingPageSize = (value?: string | string[]) => {
   }
 
   const parsedPageSize = Number.parseInt(normalized, 10);
+  const maxListingPageSize =
+    listingPageSizeOptions[listingPageSizeOptions.length - 1];
+
+  if (
+    !Number.isNaN(parsedPageSize) &&
+    maxListingPageSize !== undefined &&
+    parsedPageSize > maxListingPageSize
+  ) {
+    return maxListingPageSize;
+  }
 
   if (!listingPageSizeSet.has(parsedPageSize as ListingPageSize)) {
     return defaultListingPageSize;
