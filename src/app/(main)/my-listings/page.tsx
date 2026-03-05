@@ -2,12 +2,8 @@ import { MyListingsTabs } from "@/components/my-listings/my-listings-tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import { requireCurrentUserSession } from "@/lib/auth-session";
 import type { ListingStatus } from "@/lib/db/schema";
-import {
-  buildListingPaginationMeta,
-  parseListingPage,
-  parseListingPageSize,
-} from "@/lib/listing-browse";
-import { getListingsBySellerId } from "@/server/queries/listings";
+import { parseListingPage, parseListingPageSize } from "@/lib/listing-browse";
+import { getListingsBySellerIdPaginated } from "@/server/queries/listings";
 
 const validStatuses = new Set<ListingStatus>([
   "Draft",
@@ -38,19 +34,12 @@ export default async function MyListingsPage({
     : "Draft";
   const page = parseListingPage(resolvedSearchParams?.page);
   const pageSize = parseListingPageSize(resolvedSearchParams?.pageSize);
-  const listingRows = await getListingsBySellerId(
-    session.user.id,
-    activeStatus,
-  );
-  const pagination = buildListingPaginationMeta({
+  const { listings, pagination } = await getListingsBySellerIdPaginated({
     page,
     pageSize,
-    totalCount: listingRows.length,
+    sellerId: session.user.id,
+    status: activeStatus,
   });
-  const paginatedListings = listingRows.slice(
-    pagination.offset,
-    pagination.offset + pagination.pageSize,
-  );
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
@@ -62,7 +51,7 @@ export default async function MyListingsPage({
 
       <MyListingsTabs
         initialStatus={activeStatus}
-        listings={paginatedListings}
+        listings={listings}
         pagination={pagination}
       />
     </section>

@@ -1,7 +1,6 @@
 import { PublicListingsTabs } from "@/components/listings/public-listings-tabs";
 import { PageHeader } from "@/components/shared/page-header";
 import {
-  buildListingPaginationMeta,
   parseListingCategoryFilter,
   parseListingConditionFilter,
   parseListingPage,
@@ -11,7 +10,7 @@ import {
   parseListingSortOption,
   parsePublicBrowseStatus,
 } from "@/lib/listing-browse";
-import { getPublicListings } from "@/server/queries/listings";
+import { getPublicListingsPaginated } from "@/server/queries/listings";
 
 type ListingsPageProps = {
   searchParams?: Promise<{
@@ -41,16 +40,8 @@ export default async function ListingsPage({
     status: parsePublicBrowseStatus(resolvedSearchParams?.status),
   };
 
-  const listingRows = await getPublicListings(browseState);
-  const pagination = buildListingPaginationMeta({
-    page: browseState.page,
-    pageSize: browseState.pageSize,
-    totalCount: listingRows.length,
-  });
-  const paginatedListings = listingRows.slice(
-    pagination.offset,
-    pagination.offset + pagination.pageSize,
-  );
+  const { listings, pagination } =
+    await getPublicListingsPaginated(browseState);
 
   return (
     <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
@@ -62,7 +53,7 @@ export default async function ListingsPage({
 
       <PublicListingsTabs
         initialState={browseState}
-        listings={paginatedListings}
+        listings={listings}
         pagination={pagination}
       />
     </section>

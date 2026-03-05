@@ -1,4 +1,4 @@
-import { and, eq, type SQL, sql } from "drizzle-orm";
+import { and, eq, like, ne, or, type SQL, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import type { ListingStatus } from "@/lib/db/schema";
@@ -8,58 +8,75 @@ import type { UpdateListingDraftValues } from "@/lib/validators/listings";
 
 export type PublicListingStatus = Exclude<ListingStatus, "Draft">;
 
+type QueryPagination = {
+  limit: number;
+  offset: number;
+};
+
 type GetPublicListingsDataOptions = {
   category?: (typeof listings.$inferSelect)["category"];
   condition?: (typeof listings.$inferSelect)["condition"];
+  pagination?: QueryPagination;
   priceCeilingCents?: number;
   searchQuery?: string;
   sort?: ListingSortOption;
   status?: PublicListingStatus;
 };
 
+type GetPublicListingsCountDataOptions = Omit<
+  GetPublicListingsDataOptions,
+  "pagination" | "sort"
+>;
+
+const buildPublicListingsWhereClause = (
+  options: GetPublicListingsCountDataOptions,
+) => {
+  let whereClause: SQL = ne(listings.status, "Draft");
+  const appendFilter = (nextFilter: SQL) => {
+    const merged = and(whereClause, nextFilter);
+    whereClause = merged ?? whereClause;
+  };
+
+  if (options.status) {
+    appendFilter(eq(listings.status, options.status));
+  }
+
+  if (options.category) {
+    appendFilter(eq(listings.category, options.category));
+  }
+
+  if (options.condition) {
+    appendFilter(eq(listings.condition, options.condition));
+  }
+
+  if (options.priceCeilingCents !== undefined) {
+    appendFilter(
+      sql`coalesce(${listings.currentBid}, 0) < ${options.priceCeilingCents}`,
+    );
+  }
+
+  if (options.searchQuery) {
+    const wildcard = `%${options.searchQuery}%`;
+    const searchClause = or(
+      like(listings.title, wildcard),
+      like(listings.description, wildcard),
+    );
+
+    if (searchClause) {
+      appendFilter(searchClause);
+    }
+  }
+
+  return whereClause;
+};
+
 export const getPublicListingsData = async (
   options: GetPublicListingsDataOptions = {},
 ) => {
+  const whereClause = buildPublicListingsWhereClause(options);
+
   return db.query.listings.findMany({
-    where: (listing, { and, eq, like, ne, or }) => {
-      let whereClause = ne(listing.status, "Draft");
-      const appendFilter = (nextFilter: SQL) => {
-        const merged = and(whereClause, nextFilter);
-        whereClause = merged ?? whereClause;
-      };
-
-      if (options.status) {
-        appendFilter(eq(listing.status, options.status));
-      }
-
-      if (options.category) {
-        appendFilter(eq(listing.category, options.category));
-      }
-
-      if (options.condition) {
-        appendFilter(eq(listing.condition, options.condition));
-      }
-
-      if (options.priceCeilingCents !== undefined) {
-        appendFilter(
-          sql`coalesce(${listing.currentBid}, 0) < ${options.priceCeilingCents}`,
-        );
-      }
-
-      if (options.searchQuery) {
-        const wildcard = `%${options.searchQuery}%`;
-        const searchClause = or(
-          like(listing.title, wildcard),
-          like(listing.description, wildcard),
-        );
-
-        if (searchClause) {
-          appendFilter(searchClause);
-        }
-      }
-
-      return whereClause;
-    },
+    where: whereClause,
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),
@@ -67,6 +84,8 @@ export const getPublicListingsData = async (
       },
       seller: true,
     },
+    limit: options.pagination?.limit,
+    offset: options.pagination?.offset,
     orderBy: (listing, { asc, desc }) => {
       switch (options.sort) {
         case "ending-soonest":
@@ -93,15 +112,41 @@ export const getPublicListingsData = async (
   });
 };
 
-export const getListingsBySellerIdData = async (
+export const getPublicListingsCountData = async (
+  options: GetPublicListingsCountDataOptions = {},
+) => {
+  const whereClause = buildPublicListingsWhereClause(options);
+  const [result] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(listings)
+    .where(whereClause);
+
+  return result?.count ?? 0;
+};
+
+type GetListingsBySellerIdDataOptions = {
+  pagination?: QueryPagination;
+  status?: ListingStatus;
+};
+
+const buildSellerListingsWhereClause = (
   sellerId: string,
   status?: ListingStatus,
+) =>
+  status
+    ? and(eq(listings.sellerId, sellerId), eq(listings.status, status))
+    : eq(listings.sellerId, sellerId);
+
+export const getListingsBySellerIdData = async (
+  sellerId: string,
+  options: GetListingsBySellerIdDataOptions = {},
 ) => {
+  const whereClause = buildSellerListingsWhereClause(sellerId, options.status);
+
   return db.query.listings.findMany({
-    where: (listing, { and, eq }) =>
-      status
-        ? and(eq(listing.sellerId, sellerId), eq(listing.status, status))
-        : eq(listing.sellerId, sellerId),
+    where: whereClause,
     with: {
       images: {
         where: (images, { eq }) => eq(images.isMain, true),
@@ -109,8 +154,25 @@ export const getListingsBySellerIdData = async (
       },
       seller: true,
     },
+    limit: options.pagination?.limit,
+    offset: options.pagination?.offset,
     orderBy: (listing, { desc }) => [desc(listing.createdAt)],
   });
+};
+
+export const getListingsBySellerIdCountData = async (
+  sellerId: string,
+  status?: ListingStatus,
+) => {
+  const whereClause = buildSellerListingsWhereClause(sellerId, status);
+  const [result] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(listings)
+    .where(whereClause);
+
+  return result?.count ?? 0;
 };
 
 export const getListingByIdData = async (listingId: string) => {
